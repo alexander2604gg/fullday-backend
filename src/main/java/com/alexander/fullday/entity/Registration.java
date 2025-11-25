@@ -26,10 +26,10 @@ public class Registration {
     @Column(nullable = false, length = 100)
     private String fullName;
 
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = 120, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 15, unique = true)
     private String phone;
 
     @Enumerated(EnumType.STRING)

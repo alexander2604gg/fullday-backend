@@ -3,39 +3,48 @@ package com.alexander.fullday.service.impl;
 import com.alexander.fullday.dto.RegistrationRequestDto;
 import com.alexander.fullday.dto.RegistrationResponseDto;
 import com.alexander.fullday.entity.Registration;
+import com.alexander.fullday.enums.errors.FullDayErrorEnum;
+import com.alexander.fullday.exception.ConflictException;
 import com.alexander.fullday.mapper.RegistrationMapper;
 import com.alexander.fullday.repository.RegistrationRepository;
+import com.alexander.fullday.service.EmailService;
 import com.alexander.fullday.service.RegistrationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
 public class RegistrationServiceImpl implements RegistrationService {
 
     private final RegistrationRepository registrationRepository;
+    private final EmailService emailService;
 
-    @Override
     @Transactional
+    @Override
     public RegistrationResponseDto register(RegistrationRequestDto dto) {
-
-        if (registrationRepository.existsByDocumentNumber(dto.documentNumber())) {
-            throw new IllegalArgumentException("El documento ya está registrado.");
-        }
-
-        if (registrationRepository.existsByEmail(dto.email())) {
-            throw new IllegalArgumentException("El correo ya está registrado.");
-        }
-
-        Registration entity = RegistrationMapper.toEntity(dto);
-        Registration saved = registrationRepository.save(entity);
-
-        return RegistrationMapper.toDto(saved);
+        validateFields(dto);
+        Registration registration = RegistrationMapper.toEntity(dto);
+        emailService.sendEmail(dto.email(), dto.fullName());
+        return RegistrationMapper.toDto(registrationRepository.save(registration));
     }
 
-    @Override
     @Transactional
+    @Override
+    public List<RegistrationResponseDto> findAll () {
+        List<Registration> registrationList = registrationRepository.findAll();
+        return RegistrationMapper.toDtoList(registrationList);
+    }
+
+    @Transactional
+    @Override
     public RegistrationResponseDto findByDocument(String documentNumber) {
         Registration r = registrationRepository
                 .findByDocumentNumber(documentNumber)
@@ -43,8 +52,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         return RegistrationMapper.toDto(r);
     }
 
-    @Override
     @Transactional
+    @Override
     public RegistrationResponseDto verifyEmail(Integer registrationId) {
         Registration r = registrationRepository.findById(registrationId)
                 .orElseThrow(() -> new IllegalArgumentException("Registro no encontrado."));
@@ -55,4 +64,29 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         return RegistrationMapper.toDto(r);
     }
+
+    private void validateFields (RegistrationRequestDto dto) {
+        validateEmailNotExists(dto.email());
+        validateDocumentNotExists(dto.documentNumber());
+        validatePhoneNotExists(dto.phone());
+    }
+
+    private void validateEmailNotExists (String email) {
+        if (registrationRepository.existsByEmail(email)) {
+            throw new ConflictException(FullDayErrorEnum.EMAIL_ALREADY_EXISTS);
+        }
+    }
+
+    private void validateDocumentNotExists (String documentNumber) {
+        if (registrationRepository.existsByDocumentNumber(documentNumber)) {
+            throw new ConflictException(FullDayErrorEnum.DOCUMENT_ALREADY_EXISTS);
+        }
+    }
+
+    private void validatePhoneNotExists (String phone) {
+        if (registrationRepository.existsByPhone(phone)) {
+            throw new ConflictException(FullDayErrorEnum.PHONE_ALREADY_EXISTS);
+        }
+    }
+
 }

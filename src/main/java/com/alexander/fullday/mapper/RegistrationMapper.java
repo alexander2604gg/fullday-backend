@@ -4,6 +4,8 @@ import com.alexander.fullday.dto.RegistrationRequestDto;
 import com.alexander.fullday.dto.RegistrationResponseDto;
 import com.alexander.fullday.entity.Registration;
 
+import java.util.List;
+
 public class RegistrationMapper {
 
     public static Registration toEntity(RegistrationRequestDto dto) {
@@ -28,4 +30,9 @@ public class RegistrationMapper {
                 entity.getRegisteredAt()
         );
     }
+
+    public static List<RegistrationResponseDto> toDtoList (List<Registration> registrationList) {
+        return registrationList.stream().map(RegistrationMapper::toDto).toList();
+    }
+
 }

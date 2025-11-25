@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dpg-d4h460f5r7bs73bkdu2g-a.oregon-postgres.render.com/fullday_db
+    username: fullday_db_user
+    password: 5syDdNKTA0R67MJmP3WSpf2sTrWmVkbk
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.springframework.web: DEBUG

@@ -13,5 +13,5 @@ public interface RegistrationRepository extends JpaRepository<Registration, Inte
     Optional<Registration> findByEmail(String email);
     boolean existsByDocumentNumber(String documentNumber);
     boolean existsByEmail(String email);
-
+    boolean existsByPhone(String phone);
 }
