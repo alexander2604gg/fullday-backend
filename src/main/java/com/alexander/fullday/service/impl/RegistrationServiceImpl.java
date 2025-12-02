@@ -8,17 +8,12 @@ import com.alexander.fullday.exception.ConflictException;
 import com.alexander.fullday.mapper.RegistrationMapper;
 import com.alexander.fullday.repository.RegistrationRepository;
 import com.alexander.fullday.service.EmailService;
+import com.alexander.fullday.service.PaymentService;
 import com.alexander.fullday.service.RegistrationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
@@ -26,14 +21,17 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     private final RegistrationRepository registrationRepository;
     private final EmailService emailService;
+    private final PaymentService paymentService;
 
     @Transactional
     @Override
     public RegistrationResponseDto register(RegistrationRequestDto dto) {
         validateFields(dto);
         Registration registration = RegistrationMapper.toEntity(dto);
+        Registration registrationSaved = registrationRepository.save(registration);
+        paymentService.register(registrationSaved,dto.payment());
         emailService.sendEmail(dto.email(), dto.fullName());
-        return RegistrationMapper.toDto(registrationRepository.save(registration));
+        return RegistrationMapper.toDto(registrationSaved);
     }
 
     @Transactional

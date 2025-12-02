@@ -24,5 +24,7 @@ public record RegistrationRequestDto(
         @Size(max = 15)
         String phone,
 
-        ParticipantType type
+        ParticipantType type,
+
+        PaymentRequestDto payment
 ) {}
