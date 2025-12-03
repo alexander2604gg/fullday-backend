@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://ls-106f21bbc298761cdb8030c74f9d9aa6077e4d65.csvom08we1xn.us-east-1.rds.amazonaws.com:5432/dullday-dev
+    url: jdbc:postgresql://ls-106f21bbc298761cdb8030c74f9d9aa6077e4d65.csvom08we1xn.us-east-1.rds.amazonaws.com:5432/dbmaster
     username: dbmaster
     password: 9D&KzQas7kdVhOmr5)x88FbAKD2KhtXl
     driver-class-name: org.postgresql.Driver
