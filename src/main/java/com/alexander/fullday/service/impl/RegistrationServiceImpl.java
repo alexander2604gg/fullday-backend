@@ -13,6 +13,8 @@ import com.alexander.fullday.service.RegistrationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Service
@@ -25,11 +27,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Transactional
     @Override
-    public RegistrationResponseDto register(RegistrationRequestDto dto) {
+    public RegistrationResponseDto register(RegistrationRequestDto dto, MultipartFile photo) {
         validateFields(dto);
         Registration registration = RegistrationMapper.toEntity(dto);
         Registration registrationSaved = registrationRepository.save(registration);
-        paymentService.register(registrationSaved,dto.payment());
+        paymentService.register(registrationSaved,dto.payment(), photo);
         emailService.sendEmail(dto.email(), dto.fullName());
         return RegistrationMapper.toDto(registrationSaved);
     }
