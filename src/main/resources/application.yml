@@ -2,7 +2,7 @@ spring:
   application:
     name: full-day
   profiles:
-    active: dev
+    active: prod
 
 aws:
   accessKey: ${AWS_ACCESS_KEY_ID}
