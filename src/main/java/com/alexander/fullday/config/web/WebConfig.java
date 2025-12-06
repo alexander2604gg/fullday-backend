@@ -10,9 +10,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Todas las rutas
-                .allowedOrigins("*") // Permite todos los orígenes
-                .allowedMethods("*") // Permite todos los métodos
-                .allowedHeaders("*") // Permite todos los headers
-                .allowCredentials(false);
+                .allowedOrigins("https://landingfulldayprodunt.vercel.app") // Solo tu front
+                .allowedMethods("*") // Todos los métodos permitidos (GET, POST, etc.)
+                .allowedHeaders("*") // Todos los headers permitidos
+                .allowCredentials(true); // Si necesitas enviar cookies o headers de autenticación
     }
 }
