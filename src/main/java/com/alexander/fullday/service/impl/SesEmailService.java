@@ -32,7 +32,7 @@ public class SesEmailService implements EmailService {
                 .body(Body.builder().html(content).build())
                 .build();
         SendEmailRequest request = SendEmailRequest.builder()
-                .source("no-reply@fullday.lat")
+                .source("info@fullday.lat")
                 .destination(destination)
                 .message(message)
                 .build();
