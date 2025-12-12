@@ -1,6 +1,7 @@
 package com.alexander.fullday.service.impl;
 
 import com.alexander.fullday.dto.AttendanceResponseDto;
+import com.alexander.fullday.dto.PaymentRequestDto;
 import com.alexander.fullday.dto.RegistrationRequestDto;
 import com.alexander.fullday.dto.RegistrationResponseDto;
 import com.alexander.fullday.entity.Attendance;
@@ -37,6 +38,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public RegistrationResponseDto register(RegistrationRequestDto dto, MultipartFile photo) {
         validateFields(dto);
+        validatePayment(dto.payment());
         Registration registration = RegistrationMapper.toEntity(dto);
         Registration registrationSaved = registrationRepository.save(registration);
         paymentService.register(registrationSaved,dto.payment(), photo);
@@ -88,6 +90,12 @@ public class RegistrationServiceImpl implements RegistrationService {
                 })
                 .collect(Collectors.toList());
 
+    }
+
+    public void validatePayment(PaymentRequestDto paymentRequestDto) {
+        if (paymentRequestDto != null) {
+            throw new IllegalStateException("Ya no se permite registrar pagos para el certificado porque pasó la hora límite.");
+        }
     }
 
 
