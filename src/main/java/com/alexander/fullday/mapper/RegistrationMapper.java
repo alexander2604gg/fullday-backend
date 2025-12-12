@@ -27,7 +27,8 @@ public class RegistrationMapper {
                 entity.getPhone(),
                 entity.getType(),
                 entity.isEmailVerified(),
-                entity.getRegisteredAt()
+                entity.getRegisteredAt(),
+                null
         );
     }
 
