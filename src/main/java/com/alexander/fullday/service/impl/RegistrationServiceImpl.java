@@ -1,12 +1,17 @@
 package com.alexander.fullday.service.impl;
 
+import com.alexander.fullday.dto.AttendanceResponseDto;
 import com.alexander.fullday.dto.RegistrationRequestDto;
 import com.alexander.fullday.dto.RegistrationResponseDto;
+import com.alexander.fullday.entity.Attendance;
 import com.alexander.fullday.entity.Registration;
 import com.alexander.fullday.enums.errors.FullDayErrorEnum;
 import com.alexander.fullday.exception.ConflictException;
+import com.alexander.fullday.mapper.AttendanceMapper;
 import com.alexander.fullday.mapper.RegistrationMapper;
+import com.alexander.fullday.repository.AttendanceRepository;
 import com.alexander.fullday.repository.RegistrationRepository;
+import com.alexander.fullday.service.AttendanceService;
 import com.alexander.fullday.service.EmailService;
 import com.alexander.fullday.service.PaymentService;
 import com.alexander.fullday.service.RegistrationService;
@@ -16,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +31,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final EmailService emailService;
     private final PaymentService paymentService;
+    private final AttendanceRepository attendanceRepository;
 
     @Transactional
     @Override
@@ -38,10 +46,50 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Transactional
     @Override
-    public List<RegistrationResponseDto> findAll () {
-        List<Registration> registrationList = registrationRepository.findAll();
-        return RegistrationMapper.toDtoList(registrationList);
+    public List<RegistrationResponseDto> findAll() {
+
+        // 1. Obtener todos los registros
+        List<Registration> registrations = registrationRepository.findAll();
+
+        // 2. Obtener todas las asistencias
+        List<Attendance> attendances = attendanceRepository.findAll();
+
+        // 3. Mapear Attendance por id de Registration
+        Map<Integer, Attendance> attendanceMap = attendances.stream()
+                .collect(Collectors.toMap(
+                        a -> a.getRegistration().getId(),
+                        a -> a,
+                        (a1, a2) -> a1
+                ));
+
+        return registrations.stream()
+                .map(reg -> {
+                    Attendance attendance = attendanceMap.get(reg.getId());
+
+                    AttendanceResponseDto attendanceDto = attendance != null
+                            ? new AttendanceResponseDto(
+                            attendance.getId(),
+                            attendance.getRegistration().getId(),
+                            attendance.getCheckInAt()
+                    )
+                            : null;
+
+                    return new RegistrationResponseDto(
+                            reg.getId(),
+                            reg.getDocumentNumber(),
+                            reg.getFullName(),
+                            reg.getEmail(),
+                            reg.getPhone(),
+                            reg.getType(),
+                            reg.isEmailVerified(),
+                            reg.getRegisteredAt(),
+                            attendanceDto
+                    );
+                })
+                .collect(Collectors.toList());
+
     }
+
 
     @Transactional
     @Override
